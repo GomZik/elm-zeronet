@@ -12,7 +12,7 @@ const CMD_PONG = 'pong'
 const CMD_WRAPPER_OPENED_WEBSOCKET = 'wrapperOpenedWebsocket'
 const CMD_WRAPPER_CLOSE_WEBSOCKET = 'wrapperClosedWebsocket'
 
-class ZeroFrame {
+export default class ZeroFrame {
     constructor(url) {
         this.url = url
         this.waiting_cb = {}
