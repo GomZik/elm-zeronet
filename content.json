@@ -19,13 +19,13 @@
    "size": 121
   }
  },
- "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git)",
+ "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md)",
  "inner_path": "content.json",
- "modified": 1575379841,
+ "modified": 1575383786,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
  "signs": {
-  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "GzVtMPa258ikmb7/KwJD+rEgLaI6LxKjIckOFAEZgOd0EglGL5YqcQvxL2GXr93CDtnW9521Wf09Fr1ZBFSm2Lw="
+  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "G6K6JcEZG8o4h/JHDnwAHodhsFqDTdPPyEMnafvzATqXP66Z2imrPPL1JXZKU7FENi1g70xyKjGBo5Wzhuckrf4="
  },
  "signs_required": 1,
  "title": "my new site",
