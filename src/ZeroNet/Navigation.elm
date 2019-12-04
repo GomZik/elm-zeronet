@@ -1,10 +1,12 @@
-module ZeroNet.Navigation exposing ( Key, Request(..), pushUrl )
+port module ZeroNet.Navigation exposing ( Key, Request(..), pushUrl, load )
 
 import ZeroNet.Navigation.Internal as I
 import ZeroNet.Command.Internal as CmdI
 import Json.Encode as JE
 
 import Url exposing ( Url )
+
+port goUrl : String -> Cmd msg
 
 type alias Key = I.Key
 
@@ -22,3 +24,6 @@ pushUrl _ url =
     , JE.string url
     ]
     |> CmdI.ZFrame "wrapperPushState"
+
+load : String -> CmdI.Command msg
+load = CmdI.Platform << goUrl

@@ -3,14 +3,29 @@ module Main exposing ( main )
 import ZeroNet
 import ZeroNet.Navigation as Nav
 import ZeroNet.Command as Command exposing ( Command )
+import ZeroNet.Subscription as Subscription exposing ( Subscription )
 
 import Html exposing ( .. )
 import Html.Attributes exposing ( .. )
 import Html.Events exposing ( .. )
 
 import Url exposing ( Url )
+import Url.Parser as P
 
-type Page = Page1 | Page2
+type ExternalType = Zite String | Clearnet String
+
+type Page = Page1 | Page2 | External ExternalType
+
+router : P.Parser ( Page -> a ) a
+router =
+  P.oneOf
+    [ P.map Page1 P.top
+    , P.map Page2 ( P.s "Page2" )
+    ]
+
+parseUrl : Url -> Page
+parseUrl =
+  P.parse router >> Maybe.withDefault Page1
 
 type alias Model =
   { counter : Int
@@ -23,6 +38,7 @@ type Msg
   | Dec
   | UrlRequest Nav.Request
   | UrlChange Url
+  | LoadExternal ExternalType
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -32,13 +48,14 @@ main =
     , view = view
     , onUrlRequest = UrlRequest
     , onUrlChange = UrlChange
+    , subscriptions = always Subscription.none
     }
 
 
-init : () -> Nav.Key -> ( Model, Command Msg )
-init _ key =
+init : () -> Nav.Key -> Url -> ( Model, Command Msg )
+init _ key url =
   ( { counter = 0
-    , page = Page1
+    , page = parseUrl url
     , key = key
     }
   , Command.none )
@@ -52,9 +69,17 @@ update msg model =
     UrlRequest req ->
       case req of
         Nav.Internal u -> ( model, Nav.pushUrl model.key u.path )
-        _ -> ( model, Command.none )
+        Nav.Zite u -> ( { model | page = External ( Zite u ) }, Command.none )
+        Nav.External u -> ( { model | page = External ( Clearnet u ) }, Command.none )
     UrlChange u ->
-      ( model, Command.none )
+      ( { model | page = parseUrl u }, Command.none )
+    LoadExternal et ->
+      let
+        url = case et of
+          Zite u -> u
+          Clearnet u -> u
+      in
+        ( model, Nav.load url )
 
 
 viewCounter : Model -> Html Msg
@@ -72,13 +97,22 @@ viewRouterExample model =
     [ ul []
       [ li [] [ a [ href "?" ] [ text "Page 1" ] ]
       , li [] [ a [ href "?Page2" ] [ text "Page 2" ] ]
-      , li [] [ a [ href "http://127.0.0.1:43110/1GitLiXB6t5r8vuU2zC6a8GYj9ME6HMQ4t" ] [ text "Zite: GitCenter" ] ]
+      , li [] [ a [ href "/1GitLiXB6t5r8vuU2zC6a8GYj9ME6HMQ4t" ] [ text "Zite: GitCenter" ] ]
       , li [] [ a [ href "https://github.com/" ] [ text "External: Github" ] ]
       ]
     , div []
       [ text <| case model.page of
           Page1 -> "Page1"
           Page2 -> "Page2"
+          External et -> "Do you realy whant to go to " ++ case et of
+            Zite u -> "zite " ++ u
+            Clearnet u -> "clearnet site " ++ u
+      , case model.page of
+        External et -> div []
+          [ button [ type_ "button", onClick <| LoadExternal et ] [ text "yes" ]
+          , button [ type_ "button" ] [ text "no" ]
+          ]
+        _ -> text ""
       ]
     ]
 

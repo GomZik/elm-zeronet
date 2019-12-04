@@ -6,26 +6,26 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.a3e13226.js": {
-   "sha512": "004cab68492a547687b4c7a9c747097003ab7b15425b13e67b9526ef473e091d",
-   "size": 20496
+  "app.4e0e6c23.js": {
+   "sha512": "1a1c78b4d7d38292520d406a47c76ba819f14568ee62e74bbe9d467a9d04ad18",
+   "size": 33581
   },
-  "app.a3e13226.js.map": {
-   "sha512": "fdaca276fa72e469eaee3cfe06de5f490b8561ac1cd3b8fdd4c08760dc18e83e",
-   "size": 345
+  "app.4e0e6c23.js.map": {
+   "sha512": "9dd2cb158041f5ff8478c07095f251a892cc976e797fd178c126507d04526989",
+   "size": 9280
   },
   "index.html": {
-   "sha512": "bf0a918530f325897d2fff1f4e47142aa383299f12c765e9f829593fd05f8ed5",
-   "size": 121
+   "sha512": "5e2673cf9426732731e655487543089c280b089097cec8520f17e03d94e7015c",
+   "size": 133
   }
  },
  "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md)",
  "inner_path": "content.json",
- "modified": 1575384854,
+ "modified": 1575468856,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
  "signs": {
-  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "GxqII+PjslpD9DCB9KUDBzIii9aj6EcfRfFdtBvZsoG/K1mscCJ8q2OT+PRakeCakKhb/LEukrXNSoS9/AuL+pU="
+  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "G4if4SQpyHwJBDDYVDqudoIVBdBvHWJkUdS/zNUbAsDSTDb7b6sbMRrWLP32pZb2RMNBZ4QDWNMODWIJLf54nd4="
  },
  "signs_required": 1,
  "title": "my new site",

@@ -1,4 +1,4 @@
-module ZeroNet.Command exposing ( .. )
+module ZeroNet.Command exposing ( Command, none )
 
 import ZeroNet.Command.Internal as I
 

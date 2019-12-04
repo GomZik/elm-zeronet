@@ -5,3 +5,4 @@ import Json.Encode exposing ( Value )
 type Command msg
   = None
   | ZFrame String Value
+  | Platform ( Cmd msg )

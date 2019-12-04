@@ -5,12 +5,14 @@ import Browser exposing ( Document )
 import Browser.Navigation as Nav
 import Url exposing ( Url )
 import ZeroNet.Command.Internal as CmdI exposing ( Command )
+import ZeroNet.Subscription.Internal as SubI exposing ( Subscription )
 import ZeroNet.Navigation exposing ( Request(..) )
 import ZeroNet.Navigation.Internal exposing ( Key(..) )
 import Json.Encode as JE exposing ( Value )
 
 
 port zfSend : Value -> Cmd msg
+port urlChanged : (String -> msg) -> Sub msg
 
 
 runCmd : Command msg -> Model model -> ( Model model, Cmd ( Msg msg ) )
@@ -24,12 +26,14 @@ runCmd cmd model =
         , ( "args", args )
         ]
       )
+    CmdI.Platform c -> ( model, Cmd.map AppMsg c )
 
 type Msg msg
   = NoOp
   | AppMsg msg
   | UrlRequest Browser.UrlRequest
   | UrlChange Url
+  | IframeUrlchanged String
 
 type alias Model model =
   { appModel : model
@@ -44,17 +48,31 @@ type alias Program flags model msg =
   Platform.Program ( Flags flags ) ( Model model ) ( Msg msg )
 
 type alias ProgramConfig flags model msg =
-  { init : flags -> Key -> ( model, Command msg )
+  { init : flags -> Key -> Url -> ( model, Command msg )
   , update : msg -> model -> ( model, Command msg )
   , view : model -> Html msg
+  , subscriptions : model -> Subscription msg
   , onUrlRequest : Request -> msg
   , onUrlChange : Url -> msg
   }
 
-wrapInit : ( flags -> Key -> ( model, Command msg ) ) -> Flags flags -> Url -> Nav.Key -> ( Model model, Cmd ( Msg msg ) )
+cutWrapperNonce : String -> String
+cutWrapperNonce =
+  String.split "&"
+  >> List.filter ( not << String.startsWith "wrapper_nonce=" )
+  >> String.join "&"
+
+wrapInit : ( flags -> Key -> Url -> ( model, Command msg ) ) -> Flags flags -> Url -> Nav.Key -> ( Model model, Cmd ( Msg msg ) )
 wrapInit fn flags origin _ =
   let
-    ( internalModel, cmd ) = fn flags.appFlags Key
+    ( internalModel, cmd ) =
+      fn flags.appFlags Key
+        { origin | host = origin.path,
+                   query = Nothing,
+                   path = origin.query
+                    |> Maybe.map cutWrapperNonce
+                    |> Maybe.withDefault ""
+        }
     model =
       { appModel = internalModel
       , origin = origin
@@ -72,12 +90,22 @@ wrapUpdate cfg msg model =
         newModel = { model | appModel = newAppModel }
       in
         runCmd cmd newModel
+    -- UrlChange does not fires in Iframe, because not iframe changes url
     UrlChange _ -> ( model, Cmd.none )
     UrlRequest req ->
       let
         znReq = mapRequest model.origin req
         appMsg = cfg.onUrlRequest znReq
         ( newAppModel, cmd ) = cfg.update appMsg model.appModel
+        newModel = { model | appModel = newAppModel }
+      in
+        runCmd cmd newModel
+    IframeUrlchanged newUrlStr ->
+      let
+        origin = model.origin
+        newUrl = { origin | host = origin.path, path = newUrlStr, query = Nothing }
+
+        ( newAppModel, cmd ) = cfg.update ( cfg.onUrlChange newUrl ) model.appModel
         newModel = { model | appModel = newAppModel }
       in
         runCmd cmd newModel
@@ -103,7 +131,9 @@ mapRequest origin req =
         Internal
           { host = u.path
           , port_ = u.port_
-          , path = Maybe.withDefault "" u.query
+          , path = u.query
+            |> Maybe.map (\x -> if x == "" then x else "/" ++ x)
+            |> Maybe.withDefault ""
           , query = Nothing
           , fragment = u.fragment
           , protocol = u.protocol
@@ -111,10 +141,21 @@ mapRequest origin req =
       else Zite <| Url.toString u
 
 
+wrapSubscriptions : ( model -> Subscription msg ) -> Model model -> Sub ( Msg msg )
+wrapSubscriptions fn model =
+  let
+    appSubs = fn model.appModel
+    _ = appSubs
+  in
+    Sub.batch
+      [ urlChanged IframeUrlchanged
+      ]
+
+
 program : ProgramConfig flags model msg -> Program flags model msg
 program cfg =
   Browser.application
-    { subscriptions = always Sub.none
+    { subscriptions = wrapSubscriptions cfg.subscriptions
     , init = wrapInit cfg.init
     , update = wrapUpdate cfg
     , view = wrapView cfg.view
