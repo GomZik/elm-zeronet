@@ -1,6 +1,28 @@
 import ZeroFrame from './js/ZeroFrame'
 
-const api = new ZeroFrame()
+class API extends ZeroFrame {
+  constructor() {
+    super()
+    this.eventTarget = new EventTarget()
+  }
+
+  onRequest(msg, cmd) {
+    this.eventTarget.dispatchEvent(new CustomEvent(msg, {detail: cmd}))
+  }
+
+  subscribe(msg, cb) {
+    this.eventTarget.addEventListener(msg, cb)
+  }
+
+  getSiteInfo() {
+    this.cmd("siteInfo", {}, info => {
+      console.log('siteInfoResponse')
+      this.onRequest('setSiteInfo', {params: info})
+    })
+  }
+}
+
+const api = new API()
 
 export default {
   setup: app => {
@@ -16,5 +38,12 @@ export default {
           break
       }
     })
+
+    api.subscribe('setSiteInfo', ev => {
+      console.log('got info', ev.detail)
+      app.ports.siteInfoChanged.send(ev.detail.params)
+    })
+
+    api.getSiteInfo()
   }
 }

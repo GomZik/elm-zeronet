@@ -4,6 +4,7 @@ import ZeroNet
 import ZeroNet.Navigation as Nav
 import ZeroNet.Command as Command exposing ( Command )
 import ZeroNet.Subscription as Subscription exposing ( Subscription )
+import ZeroNet.Auth as Auth
 
 import Html exposing ( .. )
 import Html.Attributes exposing ( .. )
@@ -31,6 +32,7 @@ type alias Model =
   { counter : Int
   , page : Page
   , key : Nav.Key
+  , auth : Maybe String
   }
 
 type Msg
@@ -39,6 +41,8 @@ type Msg
   | UrlRequest Nav.Request
   | UrlChange Url
   | LoadExternal ExternalType
+  | Login Auth.CertDomains
+  | CertChanged ( Maybe String )
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -48,7 +52,7 @@ main =
     , view = view
     , onUrlRequest = UrlRequest
     , onUrlChange = UrlChange
-    , subscriptions = always Subscription.none
+    , subscriptions = subscriptions
     }
 
 
@@ -57,6 +61,7 @@ init _ key url =
   ( { counter = 0
     , page = parseUrl url
     , key = key
+    , auth = Nothing
     }
   , Command.none )
 
@@ -80,12 +85,17 @@ update msg model =
           Clearnet u -> u
       in
         ( model, Nav.load url )
+    Login cs ->
+      ( model, Auth.certSelect cs )
+    CertChanged cert ->
+      ( { model | auth = cert }, Command.none )
 
 
-viewCounter : Model -> Html Msg
-viewCounter model =
+viewCounterExample : Model -> Html Msg
+viewCounterExample model =
   div []
-    [ button [ type_ "button", onClick Dec ] [ text "-" ]
+    [ h1 [] [ text "Counter" ]
+    , button [ type_ "button", onClick Dec ] [ text "-" ]
     , text <| "Counter: " ++ String.fromInt model.counter
     , button [ type_ "button", onClick Inc ] [ text "+" ]
     ]
@@ -94,7 +104,8 @@ viewCounter model =
 viewRouterExample : Model -> Html Msg
 viewRouterExample model =
   div []
-    [ ul []
+    [ h1 [] [ text "Routing" ]
+    , ul []
       [ li [] [ a [ href "?" ] [ text "Page 1" ] ]
       , li [] [ a [ href "?Page2" ] [ text "Page 2" ] ]
       , li [] [ a [ href "/1GitLiXB6t5r8vuU2zC6a8GYj9ME6HMQ4t" ] [ text "Zite: GitCenter" ] ]
@@ -117,9 +128,25 @@ viewRouterExample model =
     ]
 
 
+viewLoginExample : Model -> Html Msg
+viewLoginExample model =
+  div []
+    [ h1 [] [ text "Cert Selection" ]
+    , case model.auth of
+        Nothing -> p [] [ text "You are not logged in." ]
+        Just cert -> p [] [ text <| "Hello, " ++ cert ]
+    , button [ type_ "button", onClick <| Login Auth.Any ] [ text "Login (ANY)" ]
+    ]
+
+
 view : Model -> Html Msg
 view model =
   div []
-    [ viewCounter model
+    [ viewCounterExample model
     , viewRouterExample model
+    , viewLoginExample model
     ]
+
+subscriptions : Model -> Subscription Msg
+subscriptions _ =
+  Auth.certChange CertChanged

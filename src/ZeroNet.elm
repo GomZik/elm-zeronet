@@ -4,15 +4,20 @@ import Html exposing ( Html )
 import Browser exposing ( Document )
 import Browser.Navigation as Nav
 import Url exposing ( Url )
+
 import ZeroNet.Command.Internal as CmdI exposing ( Command )
 import ZeroNet.Subscription.Internal as SubI exposing ( Subscription )
 import ZeroNet.Navigation exposing ( Request(..) )
 import ZeroNet.Navigation.Internal exposing ( Key(..) )
+import ZeroNet.SiteInfo as SiteInfo exposing ( SiteInfo )
+
 import Json.Encode as JE exposing ( Value )
+import Json.Decode as JD
 
 
 port zfSend : Value -> Cmd msg
 port urlChanged : (String -> msg) -> Sub msg
+port siteInfoChanged : ( Value -> msg ) -> Sub msg
 
 
 runCmd : Command msg -> Model model -> ( Model model, Cmd ( Msg msg ) )
@@ -34,10 +39,12 @@ type Msg msg
   | UrlRequest Browser.UrlRequest
   | UrlChange Url
   | IframeUrlchanged String
+  | SendUserCertToApp ( Maybe String -> msg ) Value
 
 type alias Model model =
   { appModel : model
   , origin : Url
+  , siteInfo : Maybe SiteInfo
   }
 
 type alias Flags flags =
@@ -76,6 +83,7 @@ wrapInit fn flags origin _ =
     model =
       { appModel = internalModel
       , origin = origin
+      , siteInfo = Nothing
       }
   in
     runCmd cmd model
@@ -109,6 +117,15 @@ wrapUpdate cfg msg model =
         newModel = { model | appModel = newAppModel }
       in
         runCmd cmd newModel
+    SendUserCertToApp cb val ->
+      case JD.decodeValue SiteInfo.decoder val of
+        Ok si ->
+          let
+            ( newAppModel, cmd ) = cfg.update ( cb si.certUserId ) model.appModel
+            newModel = { model | siteInfo = Just si, appModel = newAppModel }
+          in
+            runCmd cmd newModel
+        Err _ -> ( model, Cmd.none )
     NoOp ->
       ( model, Cmd.none )
 
@@ -141,14 +158,24 @@ mapRequest origin req =
       else Zite <| Url.toString u
 
 
+runSubs : Subscription msg -> Model model -> Sub ( Msg msg )
+runSubs sub _ =
+  case sub of
+    SubI.CertChange cb ->
+      siteInfoChanged <| SendUserCertToApp cb
+    SubI.None ->
+      Sub.none
+
+
 wrapSubscriptions : ( model -> Subscription msg ) -> Model model -> Sub ( Msg msg )
 wrapSubscriptions fn model =
   let
     appSubs = fn model.appModel
-    _ = appSubs
+    subs = runSubs appSubs model
   in
     Sub.batch
       [ urlChanged IframeUrlchanged
+      , subs
       ]
 
 
