@@ -2,6 +2,7 @@ module ZeroNet.Auth exposing ( .. )
 
 import ZeroNet.Command.Internal as CmdI
 import ZeroNet.Subscription.Internal as SubI
+import ZeroNet.Data.User as User exposing ( User )
 
 import Json.Encode as JE
 
@@ -31,5 +32,5 @@ certSelect cd =
     CmdI.ZFrame "certSelect" args CmdI.NoResponse
 
 
-certChange : ( Maybe String -> msg ) -> SubI.Subscription msg
+certChange : ( Maybe User -> msg ) -> SubI.Subscription msg
 certChange = SubI.CertChange

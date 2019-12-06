@@ -1,7 +1,9 @@
 module ZeroNet.Subscription.Internal exposing (..)
 
+import ZeroNet.Data.User as User exposing ( User )
+
 
 type Subscription msg
   = None
-  | CertChange ( Maybe String -> msg )
+  | CertChange ( Maybe User -> msg )
   | Batch ( List ( Subscription msg ) )

@@ -10,6 +10,7 @@ import ZeroNet.Subscription.Internal as SubI exposing ( Subscription )
 import ZeroNet.Navigation exposing ( Request(..) )
 import ZeroNet.Navigation.Internal exposing ( Key(..) )
 import ZeroNet.SiteInfo as SiteInfo exposing ( SiteInfo )
+import ZeroNet.Data.User as User exposing ( User )
 
 import Json.Encode as JE exposing ( Value )
 import Json.Decode as JD
@@ -17,6 +18,7 @@ import Json.Decode as JD
 import Dict exposing ( Dict )
 
 
+port zfReady : ( () -> msg ) -> Sub msg
 port zfSend : Value -> Cmd msg
 port zfResponse : ( Value -> msg ) -> Sub msg
 port urlChanged : ( String -> msg ) -> Sub msg
@@ -34,7 +36,7 @@ insertToDict val d =
   in
     ( id, Dict.insert id val d )
 
-runCmd : Command msg -> Model model msg -> ( Model model msg, Cmd ( Msg msg ) )
+runCmd : Command msg -> Model flags model msg -> ( Model flags model msg, Cmd ( Msg msg ) )
 runCmd cmd model =
   case cmd of
     CmdI.None -> ( model, Cmd.none )
@@ -62,7 +64,7 @@ runCmd cmd model =
     CmdI.Platform c -> ( model, Cmd.map AppMsg c )
     CmdI.Batch cmds ->
       let
-        helper : List ( Command msg ) -> Model model msg -> List ( Cmd ( Msg msg ) ) -> ( Model model msg, Cmd ( Msg msg ) )
+        helper : List ( Command msg ) -> Model flags model msg -> List ( Cmd ( Msg msg ) ) -> ( Model flags model msg, Cmd ( Msg msg ) )
         helper commandsStep modelStep acc =
           case commandsStep of
             step :: rest ->
@@ -77,18 +79,25 @@ runCmd cmd model =
 
 type Msg msg
   = NoOp
+  | ZFrameReady ()
   | AppMsg msg
   | UrlRequest Browser.UrlRequest
   | UrlChange Url
   | IframeUrlchanged String
-  | SendUserCertToApp ( Maybe String -> msg ) Value
+  | SendUserCertToApp ( Maybe User -> msg ) Value
   | GotZfResponse Value
 
-type alias Model model msg =
-  { appModel : model
+type AppState model
+  = Loading
+  | Ready model
+
+type alias Model flags model msg =
+  -- { appModel : model
+  { appState : AppState model
   , origin : Url
   , siteInfo : Maybe SiteInfo
   , zframeCallbacks : Dict Int ( Result CmdI.ZFrameError Value -> msg )
+  , flags : flags
   }
 
 type alias Flags flags =
@@ -96,7 +105,7 @@ type alias Flags flags =
   }
 
 type alias Program flags model msg =
-  Platform.Program ( Flags flags ) ( Model model msg ) ( Msg msg )
+  Platform.Program ( Flags flags ) ( Model flags model msg ) ( Msg msg )
 
 type alias ProgramConfig flags model msg =
   { init : flags -> Key -> Url -> ( model, Command msg )
@@ -113,65 +122,87 @@ cutWrapperNonce =
   >> List.filter ( not << String.startsWith "wrapper_nonce=" )
   >> String.join "&"
 
-wrapInit : ( flags -> Key -> Url -> ( model, Command msg ) ) -> Flags flags -> Url -> Nav.Key -> ( Model model msg, Cmd ( Msg msg ) )
+wrapInit : ( flags -> Key -> Url -> ( model, Command msg ) ) -> Flags flags -> Url -> Nav.Key -> ( Model flags model msg, Cmd ( Msg msg ) )
 wrapInit fn flags origin _ =
-  let
-    ( internalModel, cmd ) =
-      fn flags.appFlags Key
-        { origin | host = origin.path,
-                   query = Nothing,
-                   path = origin.query
-                    |> Maybe.map cutWrapperNonce
-                    |> Maybe.withDefault ""
-        }
-    model =
-      { appModel = internalModel
-      , origin = origin
-      , siteInfo = Nothing
-      , zframeCallbacks = Dict.empty
-      }
-  in
-    runCmd cmd model
+  -- let
+  --   ( internalModel, cmd ) =
+  --     fn flags.appFlags Key
+  --       { origin | host = origin.path,
+  --                  query = Nothing,
+  --                  path = origin.query
+  --                   |> Maybe.map cutWrapperNonce
+  --                   |> Maybe.withDefault ""
+  --       }
+  --   model =
+  --     { appState = loading
+  --     , origin = origin
+  --     , siteInfo = Nothing
+  --     , zframeCallbacks = Dict.empty
+  --     }
+  -- in
+  --   runCmd cmd model
+  ( { appState = Loading
+    , origin = origin
+    , siteInfo = Nothing
+    , zframeCallbacks = Dict.empty
+    , flags = flags.appFlags
+    }
+  , Cmd.none
+  )
 
-wrapUpdate : ProgramConfig flags model msg -> Msg msg -> Model model msg -> ( Model model msg, Cmd ( Msg msg ) )
+wrapUpdate : ProgramConfig flags model msg -> Msg msg -> Model flags model msg -> ( Model flags model msg, Cmd ( Msg msg ) )
 wrapUpdate cfg msg model =
-  -- case Debug.log "Message: " msg of
-  case msg of
-    AppMsg m ->
+  case Debug.log "Message: " ( msg, model.appState ) of
+  -- case msg of
+    ( ZFrameReady _, Loading ) ->
       let
-        ( newAppModel, cmd ) = cfg.update m model.appModel
-        newModel = { model | appModel = newAppModel }
+        origin = model.origin
+        urlForApp =
+          { origin | host = origin.path
+                   , query = Nothing
+                   , path = origin.query
+                      |> Maybe.map cutWrapperNonce
+                      |> Maybe.withDefault ""
+          }
+        ( initialModel, cmd ) = cfg.init model.flags Key urlForApp
+        newModel = { model | appState = Ready initialModel }
+      in
+        runCmd cmd newModel
+    ( AppMsg m, Ready appModel ) ->
+      let
+        ( newAppModel, cmd ) = cfg.update m appModel
+        newModel = { model | appState = Ready newAppModel }
       in
         runCmd cmd newModel
     -- UrlChange does not fires in Iframe, because not iframe changes url
-    UrlChange _ -> ( model, Cmd.none )
-    UrlRequest req ->
+    ( UrlChange _, _ ) -> ( model, Cmd.none )
+    ( UrlRequest req, Ready appModel ) ->
       let
         znReq = mapRequest model.origin req
         appMsg = cfg.onUrlRequest znReq
-        ( newAppModel, cmd ) = cfg.update appMsg model.appModel
-        newModel = { model | appModel = newAppModel }
+        ( newAppModel, cmd ) = cfg.update appMsg appModel
+        newModel = { model | appState = Ready newAppModel }
       in
         runCmd cmd newModel
-    IframeUrlchanged newUrlStr ->
+    ( IframeUrlchanged newUrlStr, Ready appModel ) ->
       let
         origin = model.origin
         newUrl = { origin | host = origin.path, path = newUrlStr, query = Nothing }
 
-        ( newAppModel, cmd ) = cfg.update ( cfg.onUrlChange newUrl ) model.appModel
-        newModel = { model | appModel = newAppModel }
+        ( newAppModel, cmd ) = cfg.update ( cfg.onUrlChange newUrl ) appModel
+        newModel = { model | appState = Ready newAppModel }
       in
         runCmd cmd newModel
-    SendUserCertToApp cb val ->
+    ( SendUserCertToApp cb val, Ready appModel ) ->
       case JD.decodeValue SiteInfo.decoder val of
         Ok si ->
           let
-            ( newAppModel, cmd ) = cfg.update ( cb si.certUserId ) model.appModel
-            newModel = { model | siteInfo = Just si, appModel = newAppModel }
+            ( newAppModel, cmd ) = cfg.update ( cb <| User.fromSiteInfo si ) appModel
+            newModel = { model | siteInfo = Just si, appState = Ready newAppModel }
           in
             runCmd cmd newModel
         Err _ -> ( model, Cmd.none )
-    GotZfResponse val ->
+    ( GotZfResponse val, Ready appModel ) ->
       case JD.decodeValue zfResponseDecoder val of
         Err err -> ( model, Cmd.none )
         Ok resp ->
@@ -179,11 +210,11 @@ wrapUpdate cfg msg model =
             Nothing ->( model, Cmd.none )
             Just toMsg ->
               let
-                ( newAppModel, cmd ) = cfg.update ( toMsg <| Ok resp.value ) model.appModel
+                ( newAppModel, cmd ) = cfg.update ( toMsg <| Ok resp.value ) appModel
                 newCallbacks = Dict.remove resp.id model.zframeCallbacks
               in
-                runCmd cmd { model | zframeCallbacks = newCallbacks, appModel = newAppModel }
-    NoOp ->
+                runCmd cmd { model | zframeCallbacks = newCallbacks, appState = Ready newAppModel }
+    _ ->
       ( model, Cmd.none )
 
 type alias ZFResponse =
@@ -198,13 +229,19 @@ zfResponseDecoder =
     ( JD.field "response" JD.value )
 
 
-wrapView : ( model -> Html msg ) -> Model model msg -> Document ( Msg msg )
+wrapView : ( model -> Html msg ) -> Model flags model msg -> Document ( Msg msg )
 wrapView fn model =
-  { title = "ZeroNet"
-  , body = fn model.appModel
-    |> Html.map AppMsg
-    |> List.singleton
-  }
+  case model.appState of
+    Loading ->
+      { title = "Loading..."
+      , body = []
+      }
+    Ready appModel ->
+      { title = "ZeroNet"
+      , body = fn appModel
+        |> Html.map AppMsg
+        |> List.singleton
+      }
 
 
 mapRequest : Url -> Browser.UrlRequest -> Request
@@ -226,7 +263,7 @@ mapRequest origin req =
       else Zite <| Url.toString u
 
 
-runSubs : Subscription msg -> Model model msg -> Sub ( Msg msg )
+runSubs : Subscription msg -> Model flags model msg -> Sub ( Msg msg )
 runSubs sub model =
   case sub of
     SubI.CertChange cb ->
@@ -238,17 +275,20 @@ runSubs sub model =
       Sub.none
 
 
-wrapSubscriptions : ( model -> Subscription msg ) -> Model model msg -> Sub ( Msg msg )
+wrapSubscriptions : ( model -> Subscription msg ) -> Model flags model msg -> Sub ( Msg msg )
 wrapSubscriptions fn model =
-  let
-    appSubs = fn model.appModel
-    subs = runSubs appSubs model
-  in
-    Sub.batch
-      [ urlChanged IframeUrlchanged
-      , zfResponse GotZfResponse
-      , subs
-      ]
+  case model.appState of
+    Loading -> zfReady ZFrameReady
+    Ready appModel ->
+      let
+        appSubs = fn appModel
+        subs = runSubs appSubs model
+      in
+        Sub.batch
+          [ urlChanged IframeUrlchanged
+          , zfResponse GotZfResponse
+          , subs
+          ]
 
 
 program : ProgramConfig flags model msg -> Program flags model msg

@@ -6,6 +6,10 @@ class API extends ZeroFrame {
     this.eventTarget = new EventTarget()
   }
 
+  onOpenWebsocket() {
+    this.eventTarget.dispatchEvent(new CustomEvent('zf-ready'))
+  }
+
   onRequest(cmd, message) {
     this.eventTarget.dispatchEvent(new CustomEvent(cmd, {detail: message}))
   }
@@ -22,10 +26,15 @@ class API extends ZeroFrame {
   }
 }
 
-const api = new API()
 
 export default {
   setup: app => {
+    const api = new API()
+
+    api.subscribe('zf-ready', () => {
+      app.ports.zfReady.send(null)
+    })
+
     app.ports.zfSend.subscribe(data => {
       console.log("zfSend:", data)
       api.cmdp(data.command, data.args).then(resp => {

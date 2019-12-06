@@ -5,7 +5,9 @@ import ZeroNet.Navigation as Nav
 import ZeroNet.Command as Command exposing ( Command )
 import ZeroNet.Subscription as Subscription exposing ( Subscription )
 import ZeroNet.Database as Db
+import ZeroNet.Files as Files
 import ZeroNet.Auth as Auth
+import ZeroNet.Data.User as User exposing ( User )
 
 import Html exposing ( .. )
 import Html.Attributes exposing ( .. )
@@ -36,7 +38,8 @@ type alias Model =
   { counter : Int
   , page : Page
   , key : Nav.Key
-  , auth : Maybe String
+  , auth : Maybe User
+  , fileContents : String
   }
 
 type Msg
@@ -46,9 +49,13 @@ type Msg
   | UrlChange Url
   | LoadExternal ExternalType
   | Login Auth.CertDomains
-  | CertChanged ( Maybe String )
+  | CertChanged ( Maybe User )
   | GotDBResponse ( Result Db.Error Int )
   | ReqDb
+  | PutFile
+  | ReadFile
+  | GotFileContents ( Result Files.Error String )
+  | UpdateFileContents String
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -77,6 +84,7 @@ init _ key url =
     , page = parseUrl url
     , key = key
     , auth = Nothing
+    , fileContents = ""
     }
   , Command.none
   )
@@ -113,6 +121,30 @@ update msg model =
         , expect = Db.expectJson dec GotDBResponse
         }
       )
+    PutFile ->
+      model.auth
+        |> Maybe.map (\user ->
+          ( model, Files.put ( "data/users/" ++ user.certAddress ++ "/data.json" ) model.fileContents )
+        )
+        |> Maybe.withDefault ( model, Command.none )
+    ReadFile ->
+      model.auth
+        |> Maybe.map (\user ->
+          ( model
+          , Files.get
+            { path = "data/users/" ++ user.certAddress ++ "/data.json"
+            , expect = Files.expectText GotFileContents
+            , required = False
+            , timeout = Nothing
+            }
+          )
+        )
+        |> Maybe.withDefault ( model, Command.none )
+    GotFileContents res ->
+      case res of
+        Err _ -> ( model, Command.none )
+        Ok val -> ( { model | fileContents = val }, Command.none )
+    UpdateFileContents str -> ( { model | fileContents = str }, Command.none )
     CertChanged cert ->
       ( { model | auth = cert }, Command.none )
 
@@ -160,8 +192,9 @@ viewLoginExample model =
     [ h1 [] [ text "Cert Selection" ]
     , case model.auth of
         Nothing -> p [] [ text "You are not logged in." ]
-        Just cert -> p [] [ text <| "Hello, " ++ cert ]
+        Just user -> p [] [ text <| "Hello, " ++ user.certName ]
     , button [ type_ "button", onClick <| Login Auth.Any ] [ text "Login (ANY)" ]
+    , button [ type_ "button", onClick <| Login <| Auth.Filter { pattern = Nothing, domains = [ "zeroid.bit" ] } ] [ text "Login (ZeroID only)" ]
     ]
 
 
@@ -170,6 +203,9 @@ viewChatExample model =
   div []
     [ h1 [] [ text "Chat" ]
     , button [ type_ "button", onClick ReqDb ] [ text "db request" ]
+    , button [ type_ "button", onClick PutFile ] [ text "put file" ]
+    , button [ type_ "button", onClick ReadFile ] [ text "read file" ]
+    , textarea [ value model.fileContents, onInput UpdateFileContents ] []
     ]
 
 

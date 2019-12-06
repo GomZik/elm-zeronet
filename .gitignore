@@ -3,4 +3,5 @@
 /elm-stuff
 /.cache
 /app.*.js*
-/data/
+/data/*.db*
+/data/users/*/*
