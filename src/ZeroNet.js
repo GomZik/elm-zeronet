@@ -6,8 +6,8 @@ class API extends ZeroFrame {
     this.eventTarget = new EventTarget()
   }
 
-  onRequest(msg, cmd) {
-    this.eventTarget.dispatchEvent(new CustomEvent(msg, {detail: cmd}))
+  onRequest(cmd, message) {
+    this.eventTarget.dispatchEvent(new CustomEvent(cmd, {detail: message}))
   }
 
   subscribe(msg, cb) {
@@ -30,6 +30,12 @@ export default {
       console.log("zfSend:", data)
       api.cmdp(data.command, data.args).then(resp => {
         console.log(resp)
+        if ( data && data.reqId ) {
+          app.ports.zfResponse.send({
+            id: data.reqId,
+            response: resp,
+          })
+        }
       })
       switch (data.command) {
         case 'wrapperPushState':

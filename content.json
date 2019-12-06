@@ -6,26 +6,30 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.d0a7313f.js": {
-   "sha512": "099ba49822947639a1ff7e69e0463400b4a9f2088f8ddce5a2b1f861675814a3",
-   "size": 36484
+  "app.f1653d97.js": {
+   "sha512": "2122b73e0ae0549db2497498c2d1143b6ac82715a0fa4ca0845284dfbc0fb6be",
+   "size": 38165
   },
-  "app.d0a7313f.js.map": {
-   "sha512": "1a58b0ad986cd43db041fad12aa29d61cea2cb4984b441090e103b69b5daff6f",
-   "size": 11585
+  "app.f1653d97.js.map": {
+   "sha512": "0452ff5188b3a8054dc098670756806fc5288bec36423676a3d757e78ae8d6b9",
+   "size": 11862
+  },
+  "dbschema.json": {
+   "sha512": "6a0141746e4786896502707dcde41fc0cf3f52df66d1eeb4d40656c0850140d0",
+   "size": 75
   },
   "index.html": {
-   "sha512": "3448042f02cb31c4c59a833f9ef5e80efac62f49c540cca359495f58fd54aa66",
+   "sha512": "39c0a985917aec121c9f8c92938e190ca3a482d316a986b1d6414dd6228ff6c3",
    "size": 133
   }
  },
- "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md)",
+ "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?)",
  "inner_path": "content.json",
- "modified": 1575549359,
+ "modified": 1575642100,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
  "signs": {
-  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HDUja27HMykesQK2RgrNRZKrrwuQTkkBr1w1YtSJHsrnVa9Sg20bMl2MIUcz5CF92aV6o68o0lKC90sG1fEM9Ow="
+  "1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HK0BUh7Uo+b+5Ty/iUHA+tOOBV3JojxjdHNG7/3ysYyIZcpAyWHtZ9b8XjampOznkkKs4l7zbCchbrPa0EpSnFo="
  },
  "signs_required": 1,
  "title": "my new site",

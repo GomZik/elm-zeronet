@@ -28,7 +28,7 @@ certSelect cd =
           )
         ]
   in
-    CmdI.ZFrame "certSelect" args
+    CmdI.ZFrame "certSelect" args CmdI.NoResponse
 
 
 certChange : ( Maybe String -> msg ) -> SubI.Subscription msg

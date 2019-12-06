@@ -4,6 +4,7 @@ import ZeroNet
 import ZeroNet.Navigation as Nav
 import ZeroNet.Command as Command exposing ( Command )
 import ZeroNet.Subscription as Subscription exposing ( Subscription )
+import ZeroNet.Database as Db
 import ZeroNet.Auth as Auth
 
 import Html exposing ( .. )
@@ -12,6 +13,9 @@ import Html.Events exposing ( .. )
 
 import Url exposing ( Url )
 import Url.Parser as P
+
+import Json.Encode as JE
+import Json.Decode as JD
 
 type ExternalType = Zite String | Clearnet String
 
@@ -43,6 +47,8 @@ type Msg
   | LoadExternal ExternalType
   | Login Auth.CertDomains
   | CertChanged ( Maybe String )
+  | GotDBResponse ( Result Db.Error Int )
+  | ReqDb
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -55,6 +61,15 @@ main =
     , subscriptions = subscriptions
     }
 
+type alias DbResp =
+  { test : Int
+  }
+
+dec : JD.Decoder Int
+dec =
+  JD.list
+    ( JD.map DbResp ( JD.field "test" JD.int ) )
+  |> JD.andThen ( List.head >> Maybe.map .test >> Maybe.withDefault 0 >> JD.succeed )
 
 init : () -> Nav.Key -> Url -> ( Model, Command Msg )
 init _ key url =
@@ -63,7 +78,8 @@ init _ key url =
     , key = key
     , auth = Nothing
     }
-  , Command.none )
+  , Command.none
+  )
 
 update : Msg -> Model -> ( Model, Command Msg )
 update msg model =
@@ -87,6 +103,16 @@ update msg model =
         ( model, Nav.load url )
     Login cs ->
       ( model, Auth.certSelect cs )
+    GotDBResponse res ->
+      ( model, Command.none )
+    ReqDb ->
+      ( model
+      , Db.query
+        { query = "SELECT 1 AS test"
+        , params = JE.object []
+        , expect = Db.expectJson dec GotDBResponse
+        }
+      )
     CertChanged cert ->
       ( { model | auth = cert }, Command.none )
 
@@ -139,12 +165,21 @@ viewLoginExample model =
     ]
 
 
+viewChatExample : Model -> Html Msg
+viewChatExample model =
+  div []
+    [ h1 [] [ text "Chat" ]
+    , button [ type_ "button", onClick ReqDb ] [ text "db request" ]
+    ]
+
+
 view : Model -> Html Msg
 view model =
   div []
     [ viewCounterExample model
     , viewRouterExample model
     , viewLoginExample model
+    , viewChatExample model
     ]
 
 subscriptions : Model -> Subscription Msg

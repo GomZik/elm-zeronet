@@ -18,12 +18,14 @@ type Request
 
 pushUrl : Key -> String -> CmdI.Command msg
 pushUrl _ url =
-  JE.list identity
-    [ JE.null
-    , JE.string "Title"
-    , JE.string url
-    ]
-    |> CmdI.ZFrame "wrapperPushState"
+  CmdI.ZFrame
+    "wrapperPushState"
+    ( JE.list identity
+      [ JE.null
+      , JE.string "Title"
+      , JE.string url
+      ] )
+    CmdI.NoResponse
 
 load : String -> CmdI.Command msg
 load = CmdI.Platform << goUrl
