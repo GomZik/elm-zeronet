@@ -152,8 +152,8 @@ wrapInit fn flags origin _ =
 
 wrapUpdate : ProgramConfig flags model msg -> Msg msg -> Model flags model msg -> ( Model flags model msg, Cmd ( Msg msg ) )
 wrapUpdate cfg msg model =
-  case Debug.log "Message: " ( msg, model.appState ) of
-  -- case msg of
+  -- case Debug.log "Message: " ( msg, model.appState ) of
+  case ( msg, model.appState ) of
     ( ZFrameReady _, Loading ) ->
       let
         origin = model.origin
