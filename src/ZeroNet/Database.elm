@@ -1,5 +1,5 @@
 module ZeroNet.Database exposing
-  ( Error, Expect, expectJson, query )
+  ( Error, Expect, expectJson, query, expectValue )
 
 import ZeroNet.Command.Internal as CmdI
 import Json.Encode as JE exposing ( Value )
@@ -10,31 +10,34 @@ type Error
   = JsonParseError JD.Error
   | RequestError CmdI.ZFrameError
 
-type Expect tp msg = Json ( Decoder tp ) ( Result Error tp -> msg )
+type Expect msg = Val ( Result Error Value -> msg )
 
-type alias QueryParams tp msg =
+type alias QueryParams msg =
   { query : String
   , params : Value
-  , expect : Expect tp msg
+  , expect : Expect msg
   }
 
-expectJson : Decoder tp -> ( Result Error tp -> msg ) -> Expect tp msg
-expectJson = Json
+expectJson : Decoder tp -> ( Result Error tp -> msg ) -> Expect msg
+expectJson dec cb =
+  Val (\res ->
+    case res of
+      Err err -> cb <| Err err
+      Ok val -> case JD.decodeValue dec val of
+        Err err -> cb <| Err <| JsonParseError err
+        Ok tp -> cb <| Ok tp
+  )
 
-processResponse : Expect tp msg -> Result CmdI.ZFrameError Value -> msg
-processResponse ( Json dec cb ) res =
-  let
-    expectResult = case res of
-      Err err -> Err <| RequestError err
-      Ok val ->
-        case JD.decodeValue dec val of
-          Err err -> Err <| JsonParseError err
-          Ok tp ->
-            Ok tp
-  in
-    cb expectResult
+expectValue : ( Result Error Value -> msg ) -> Expect msg
+expectValue = Val
 
-query : QueryParams tp msg -> CmdI.Command msg
+processResponse : Expect msg -> Result CmdI.ZFrameError Value -> msg
+processResponse ( Val cb ) res =
+  res
+    |> Result.mapError RequestError
+    |> cb
+
+query : QueryParams msg -> CmdI.Command msg
 query prms =
   CmdI.ZFrame "dbQuery"
     ( JE.list identity <|

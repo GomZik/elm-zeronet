@@ -9,6 +9,7 @@ import ZeroNet.Files as Files
 import ZeroNet.Auth as Auth
 import ZeroNet.Data.User as User exposing ( User )
 import ZeroNet.Site as Site exposing ( SiteInfo )
+import ZeroNet.Notification as Notification
 
 import Html exposing ( .. )
 import Html.Attributes exposing ( .. )
@@ -118,6 +119,7 @@ type Msg
   | MsgPublished ( Result Site.Error () )
   | GotMessages ( Result Db.Error ( List ChatMessage ) )
   | ReloadMessages
+  | SendNotification Notification.Severity
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -255,6 +257,10 @@ update msg model =
       case res of
         Err _ -> ( model, Command.none )
         Ok msgs -> ( { model | lastMessages = msgs }, Command.none )
+    SendNotification sev ->
+      ( model
+      , Notification.send sev "test notification" Nothing
+      )
     CertChanged cert ->
       ( { model | auth = cert }, Command.none )
 
@@ -325,6 +331,15 @@ viewChatExample model =
       h2 [] [ text "messages" ] :: List.map (\x -> p [] [ text <| x.id ++ ": " ++ x.msg ]) model.lastMessages
     ]
 
+viewNotificationsExample : Model -> Html Msg
+viewNotificationsExample model =
+  div []
+    [ h1 [] [ text "Notifications" ]
+    , button [ type_ "button", onClick <| SendNotification Notification.Info ] [ text "Info notification" ]
+    , button [ type_ "button", onClick <| SendNotification Notification.Done ] [ text "Done notification" ]
+    , button [ type_ "button", onClick <| SendNotification Notification.Error ] [ text "Error notification" ]
+    ]
+
 
 view : Model -> Html Msg
 view model =
@@ -333,6 +348,7 @@ view model =
     , viewRouterExample model
     , viewLoginExample model
     , viewChatExample model
+    , viewNotificationsExample model
     ]
 
 subscriptions : Model -> Subscription Msg
