@@ -1,7 +1,8 @@
 module ZeroNet.Files exposing
-  ( Error, put, get, Expect, expectText, expectJson, Content(..) )
+  ( Error, put, get, Expect, expectText, expectJson, Content(..), onFileWrite )
 
 import ZeroNet.Command.Internal as CmdI
+import ZeroNet.Subscription.Internal as SubI
 
 import Json.Encode as JE exposing ( Value )
 import Json.Decode as JD
@@ -86,3 +87,7 @@ get prms =
       ]
     )
     ( CmdI.Response <| processGetResponse prms.expect )
+
+
+onFileWrite : msg -> SubI.Subscription msg
+onFileWrite = SubI.OnFileWrite

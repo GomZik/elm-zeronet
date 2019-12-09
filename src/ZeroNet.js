@@ -55,6 +55,8 @@ export default {
         switch (payload.params.event[0]) {
           case 'cert_changed':
             app.ports.certChanged.send(payload.params)
+          case 'file_done':
+            app.ports.onFileWrite.send(null)
         }
     })
   }

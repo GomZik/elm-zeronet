@@ -24,6 +24,7 @@ port zfResponse : ( Value -> msg ) -> Sub msg
 port urlChanged : ( String -> msg ) -> Sub msg
 port siteInfoChanged : ( Value -> msg ) -> Sub msg
 port certChanged : ( Value -> msg ) -> Sub msg
+port onFileWrite : ( () -> msg ) -> Sub msg
 
 insertToDict : x -> Dict Int x -> ( Int, Dict Int x )
 insertToDict val d =
@@ -255,6 +256,8 @@ runSubs sub model =
     SubI.Batch subs ->
       Sub.batch <|
         List.map ( \x -> runSubs x model ) subs
+    SubI.OnFileWrite msg ->
+      onFileWrite <| always <| AppMsg msg
     SubI.None ->
       Sub.none
 
@@ -271,6 +274,7 @@ wrapSubscriptions fn model =
         Sub.batch
           [ urlChanged IframeUrlchanged
           , zfResponse GotZfResponse
+          , siteInfoChanged <| always NoOp
           , subs
           ]
 

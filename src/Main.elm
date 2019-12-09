@@ -117,7 +117,7 @@ type Msg
   | MsgSended ( Result Files.Error () )
   | MsgPublished ( Result Site.Error () )
   | GotMessages ( Result Db.Error ( List ChatMessage ) )
-  | QueryMessages
+  | ReloadMessages
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -237,13 +237,9 @@ update msg model =
               ( "data/users/" ++ user.certAddress ++ "/data.json" )
               ( Files.Json <| encodeChatData newChatData )
             )
-    QueryMessages ->
+    ReloadMessages ->
       ( model
-      , Db.query
-        { query = "SELECT json.cert_user_id as user_id, message.msg as msg FROM message LEFT JOIN json ON message.json_id = json.json_id ORDER BY created LIMIT 20"
-        , params = JE.null
-        , expect = Db.expectJson ( JD.fail "test" ) ( always Inc )
-        }
+      , loadMessages
       )
     MsgSended res ->
       case res of
@@ -341,4 +337,7 @@ view model =
 
 subscriptions : Model -> Subscription Msg
 subscriptions _ =
-  Auth.certChange CertChanged
+  Subscription.batch
+    [ Auth.certChange CertChanged
+    , Files.onFileWrite ReloadMessages
+    ]

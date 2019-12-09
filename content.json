@@ -6,20 +6,20 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.ee0fd14f.js": {
-   "sha512": "3ea6753e8af97534088fe819bdff071f16b0aab9a4f99c01ecf0842c9235c94a",
-   "size": 45031
+  "app.8e73957c.js": {
+   "sha512": "753e21f0d6d6c92051fedc0329d89dce87aadab6a9eeff48cab9cc78c1f28ee4",
+   "size": 45049
   },
-  "app.ee0fd14f.js.map": {
-   "sha512": "a89e2cb6fb39022fe5791f34cfe336902adb076fba43984e9f9e43faded05e63",
-   "size": 12307
+  "app.8e73957c.js.map": {
+   "sha512": "f892631465821c4a4bf558f5217a3562a2d73531889062518880f2ca8e4b039d",
+   "size": 12439
   },
   "dbschema.json": {
    "sha512": "b858d097f8588b4239d8af05b713696f103d25eeb51424d2a55e050457a7f0a4",
    "size": 1180
   },
   "index.html": {
-   "sha512": "0369504b7e2f0d29d1e2ed77a14bb736f028ec42a263d4ff07a7ba0eb465926f",
+   "sha512": "cf85b5b8c51463c0a214bc54f009e99d390f3a08f240af9490f54c812876326d",
    "size": 133
   }
  },
@@ -31,10 +31,10 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1575909158,
+ "modified": 1575915960,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "GwivcDlgVE67SRMcsO4VHXPC5meO7MIMAy07Jhms83Frba5cad9BUvDmcBoY3cA1j8kvg5eS3xJo69Iurz48FWo="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HCdi69f7Jw/y6U6YAdRLDgIzAWSOTbZORgsEWAu5fg29JrpQiFtqhHomG5MqgRIkxMMc1e9lym9aY8xq2HkzmaQ="},
  "signs_required": 1,
  "title": "my new site",
  "zeronet_version": "0.7.1"
