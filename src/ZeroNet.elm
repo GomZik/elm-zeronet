@@ -9,7 +9,7 @@ import ZeroNet.Command.Internal as CmdI exposing ( Command )
 import ZeroNet.Subscription.Internal as SubI exposing ( Subscription )
 import ZeroNet.Navigation exposing ( Request(..) )
 import ZeroNet.Navigation.Internal exposing ( Key(..) )
-import ZeroNet.SiteInfo as SiteInfo exposing ( SiteInfo )
+import ZeroNet.Site as Site exposing ( SiteInfo )
 import ZeroNet.Data.User as User exposing ( User )
 
 import Json.Encode as JE exposing ( Value )
@@ -23,6 +23,7 @@ port zfSend : Value -> Cmd msg
 port zfResponse : ( Value -> msg ) -> Sub msg
 port urlChanged : ( String -> msg ) -> Sub msg
 port siteInfoChanged : ( Value -> msg ) -> Sub msg
+port certChanged : ( Value -> msg ) -> Sub msg
 
 insertToDict : x -> Dict Int x -> ( Int, Dict Int x )
 insertToDict val d =
@@ -73,7 +74,7 @@ runCmd cmd model =
               in
                 helper rest newModel ( resultCmd :: acc )
             [] ->
-              ( model, Cmd.batch <| List.reverse acc )
+              ( modelStep, Cmd.batch <| List.reverse acc )
       in
         helper cmds model []
 
@@ -122,25 +123,8 @@ cutWrapperNonce =
   >> List.filter ( not << String.startsWith "wrapper_nonce=" )
   >> String.join "&"
 
-wrapInit : ( flags -> Key -> Url -> ( model, Command msg ) ) -> Flags flags -> Url -> Nav.Key -> ( Model flags model msg, Cmd ( Msg msg ) )
-wrapInit fn flags origin _ =
-  -- let
-  --   ( internalModel, cmd ) =
-  --     fn flags.appFlags Key
-  --       { origin | host = origin.path,
-  --                  query = Nothing,
-  --                  path = origin.query
-  --                   |> Maybe.map cutWrapperNonce
-  --                   |> Maybe.withDefault ""
-  --       }
-  --   model =
-  --     { appState = loading
-  --     , origin = origin
-  --     , siteInfo = Nothing
-  --     , zframeCallbacks = Dict.empty
-  --     }
-  -- in
-  --   runCmd cmd model
+init : Flags flags -> Url -> Nav.Key -> ( Model flags model msg, Cmd ( Msg msg ) )
+init flags origin _ =
   ( { appState = Loading
     , origin = origin
     , siteInfo = Nothing
@@ -194,7 +178,7 @@ wrapUpdate cfg msg model =
       in
         runCmd cmd newModel
     ( SendUserCertToApp cb val, Ready appModel ) ->
-      case JD.decodeValue SiteInfo.decoder val of
+      case JD.decodeValue Site.decoder val of
         Ok si ->
           let
             ( newAppModel, cmd ) = cfg.update ( cb <| User.fromSiteInfo si ) appModel
@@ -267,7 +251,7 @@ runSubs : Subscription msg -> Model flags model msg -> Sub ( Msg msg )
 runSubs sub model =
   case sub of
     SubI.CertChange cb ->
-      siteInfoChanged <| SendUserCertToApp cb
+      certChanged <| SendUserCertToApp cb
     SubI.Batch subs ->
       Sub.batch <|
         List.map ( \x -> runSubs x model ) subs
@@ -295,7 +279,7 @@ program : ProgramConfig flags model msg -> Program flags model msg
 program cfg =
   Browser.application
     { subscriptions = wrapSubscriptions cfg.subscriptions
-    , init = wrapInit cfg.init
+    , init = init
     , update = wrapUpdate cfg
     , view = wrapView cfg.view
     , onUrlChange = UrlChange

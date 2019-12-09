@@ -1,6 +1,6 @@
 module ZeroNet.Data.User exposing ( .. )
 
-import ZeroNet.SiteInfo exposing ( SiteInfo )
+import ZeroNet.Site exposing ( SiteInfo )
 
 type alias User =
   { certName : String

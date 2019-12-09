@@ -17,13 +17,6 @@ class API extends ZeroFrame {
   subscribe(msg, cb) {
     this.eventTarget.addEventListener(msg, cb)
   }
-
-  getSiteInfo() {
-    this.cmd("siteInfo", {}, info => {
-      console.log('siteInfoResponse')
-      this.onRequest('setSiteInfo', {params: info})
-    })
-  }
 }
 
 
@@ -55,10 +48,14 @@ export default {
     })
 
     api.subscribe('setSiteInfo', ev => {
-      console.log('got info', ev.detail)
-      app.ports.siteInfoChanged.send(ev.detail.params)
+      let payload = ev.detail
+      console.log('got info', payload)
+      app.ports.siteInfoChanged.send(payload.params)
+      if (payload && payload.params && payload.params.event && payload.params.event.length > 0)
+        switch (payload.params.event[0]) {
+          case 'cert_changed':
+            app.ports.certChanged.send(payload.params)
+        }
     })
-
-    api.getSiteInfo()
   }
 }

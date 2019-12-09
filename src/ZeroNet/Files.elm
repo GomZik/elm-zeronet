@@ -1,5 +1,5 @@
 module ZeroNet.Files exposing
-  ( Error, put, get, Expect, expectText, expectJson )
+  ( Error, put, get, Expect, expectText, expectJson, Content(..) )
 
 import ZeroNet.Command.Internal as CmdI
 
@@ -11,16 +11,36 @@ import Base64
 type Error
   = JsonError JD.Error
   | ZFrameError CmdI.ZFrameError
+  | PutError String
 
-put : String -> String -> CmdI.Command msg
-put name data =
+type Content
+  = Text String
+  | Json Value
+
+putResponseDecoder : JD.Decoder ( Result Error () )
+putResponseDecoder =
+  JD.oneOf
+  [ JD.field "error" JD.string |> JD.andThen ( \str -> JD.succeed <| Err <| PutError str )
+  , JD.succeed <| Ok ()
+  ]
+
+put : ( Result Error () -> msg ) -> String -> Content -> CmdI.Command msg
+put cb name data =
   CmdI.ZFrame "fileWrite"
     ( JE.list identity
       [ JE.string name
-      , JE.string <| Base64.encode data
+      , JE.string <| Base64.encode <| case data of
+        Text str -> str
+        Json val -> JE.encode 1 val
       ]
     )
-    CmdI.NoResponse
+    ( CmdI.Response (\res ->
+      case res of
+        Err err -> cb <| Err <| ZFrameError err
+        Ok val -> case JD.decodeValue putResponseDecoder val of
+          Ok decres -> cb <| decres
+          Err err -> cb <| Err <| JsonError err
+    ) )
 
 type Expect msg
   = TextResponse ( Result Error String -> msg )

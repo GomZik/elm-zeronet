@@ -1,4 +1,4 @@
-module ZeroNet.Command exposing ( Command, none, batch )
+module ZeroNet.Command exposing ( Command, none, batch, cmd )
 
 import ZeroNet.Command.Internal as I
 
@@ -10,3 +10,6 @@ none = I.None
 
 batch : List ( Command msg ) -> Command msg
 batch = I.Batch
+
+cmd : Cmd msg -> Command msg
+cmd = I.Platform
