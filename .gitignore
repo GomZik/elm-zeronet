@@ -6,3 +6,4 @@
 /data/*.db*
 /data/users/*/*
 /styles.*.css*
+/logo.png
