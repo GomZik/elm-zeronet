@@ -1,0 +1,11 @@
+@import 'bulma';
+
+@import 'animate.css';
+
+.delay-500ms {
+    animation-delay: 500ms;
+}
+
+.delay-200ms {
+    animation-delay: 200ms;
+}

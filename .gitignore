@@ -5,3 +5,4 @@
 /app.*.js*
 /data/*.db*
 /data/users/*/*
+/styles.*.css*

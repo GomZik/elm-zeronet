@@ -6,12 +6,12 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.8e73957c.js": {
-   "sha512": "753e21f0d6d6c92051fedc0329d89dce87aadab6a9eeff48cab9cc78c1f28ee4",
-   "size": 45049
+  "app.82c1ed8c.js": {
+   "sha512": "bbefbba7ad46f6b9afb77b861cb3ffe50374f225df042500e64172b227bfb9ce",
+   "size": 38137
   },
-  "app.8e73957c.js.map": {
-   "sha512": "f892631465821c4a4bf558f5217a3562a2d73531889062518880f2ca8e4b039d",
+  "app.82c1ed8c.js.map": {
+   "sha512": "5582f05c3ebfb710e14f8a67245987c5094eeed152c093d2507a15083aede7cf",
    "size": 12439
   },
   "dbschema.json": {
@@ -19,8 +19,16 @@
    "size": 1180
   },
   "index.html": {
-   "sha512": "cf85b5b8c51463c0a214bc54f009e99d390f3a08f240af9490f54c812876326d",
-   "size": 133
+   "sha512": "20935e22903bf8f94958f6c1311cae98f1d355076462d6aff77cbc0b3f26fc2e",
+   "size": 199
+  },
+  "styles.95144784.css": {
+   "sha512": "0392702b6af3780f16bb5d75b11bb3df0cfe42bed36f089be509f0e9815e36b6",
+   "size": 251063
+  },
+  "styles.95144784.css.map": {
+   "sha512": "3b19ed0f49b9f9fb314f03c67a07891df19b6de9311c701333f4121c6cd71e62",
+   "size": 277615
   }
  },
  "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/.*)",
@@ -31,11 +39,11 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1575915960,
+ "modified": 1576242051,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HCdi69f7Jw/y6U6YAdRLDgIzAWSOTbZORgsEWAu5fg29JrpQiFtqhHomG5MqgRIkxMMc1e9lym9aY8xq2HkzmaQ="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "G+v2UT1+4Cv4Bs0cx1xPPxHwMht9Vf+WbmW31l2T5dilcQwyf5IDiE8jMXdBvdsH6+5Qy5/9mqJfQppzQuatHDo="},
  "signs_required": 1,
- "title": "my new site",
+ "title": "Elm-ZeroNet Demo",
  "zeronet_version": "0.7.1"
 }
