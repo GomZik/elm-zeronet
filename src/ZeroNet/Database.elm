@@ -1,23 +1,55 @@
 module ZeroNet.Database exposing
-  ( Error, Expect, expectJson, query, expectValue )
+  ( Error, Expect, expectJson, query, expectValue
+  , errorToString, QueryParams
+  )
+
+{-| ZeroNet.Database module allows to work with database.
+
+You need a proper dbschema.json file first,
+see [Structure of dbschema.json](https://zeronet.io/docs/site_development/dbschema_json/)
+
+# Types
+
+@docs Error, errorToString
+
+# Queries
+
+@docs QueryParams, query, Expect, expectValue, expectJson
+-}
 
 import ZeroNet.Command.Internal as CmdI
 import Json.Encode as JE exposing ( Value )
 import Json.Decode as JD exposing ( Decoder )
 
 
+{-| Error represents an error, that can be happened while db query
+-}
 type Error
   = JsonParseError JD.Error
   | RequestError CmdI.ZFrameError
 
+{-| errorToString transforms Error type to string
+-}
+errorToString : Error -> String
+errorToString err =
+  case err of
+    JsonParseError jderr -> "failed to parse json: " ++ JD.errorToString jderr
+    RequestError zferr -> "failed to query data: " ++ CmdI.errorToString zferr
+
+{-| Expect type tells ZeroNet runtime, what we expect as a result of query
+-}
 type Expect msg = Val ( Result Error Value -> msg )
 
+{-| QueryParams is just alias for params of a query command
+-}
 type alias QueryParams msg =
   { query : String
   , params : Value
   , expect : Expect msg
   }
 
+{-| expectJson tells ZeroNet runtime that we expect json decoded type
+-}
 expectJson : Decoder tp -> ( Result Error tp -> msg ) -> Expect msg
 expectJson dec cb =
   Val (\res ->
@@ -28,6 +60,8 @@ expectJson dec cb =
         Ok tp -> cb <| Ok tp
   )
 
+{-| expectValue tells ZeroNet runtime that we expect raw Json.Encode.Value
+-}
 expectValue : ( Result Error Value -> msg ) -> Expect msg
 expectValue = Val
 
@@ -37,6 +71,16 @@ processResponse ( Val cb ) res =
     |> Result.mapError RequestError
     |> cb
 
+{-| query returns command that tells ZeroNet runtime to execute database query
+
+    query
+      { query = "SELECT * FROM messages WHERE user_id = :user_id LIMIT 20;"
+      , params = JE.object
+        [ ( "user_id", model.userID )
+        ]
+      , expect = expectJson messageDecoder GotDatabaseQueryResult
+      }
+-}
 query : QueryParams msg -> CmdI.Command msg
 query prms =
   CmdI.ZFrame "dbQuery"

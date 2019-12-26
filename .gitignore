@@ -5,5 +5,7 @@
 /app.*.js*
 /data/*.db*
 /data/users/*/*
+/data/docs.json
 /styles.*.css*
 /logo.png
+/.vscode

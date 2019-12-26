@@ -6,20 +6,20 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.44807b88.js": {
-   "sha512": "bb0d4a5bd5a810dce63e5ff991ea31867642d152ca3634d4270d8c1d805621e5",
-   "size": 38275
+  "app.4b1a6cf7.js": {
+   "sha512": "d25aca45830e1c135dca96ec6b62517dd7b83bc0f07b0482721a32ff005d7d00",
+   "size": 42887
   },
-  "app.44807b88.js.map": {
-   "sha512": "bc752f80d2e3bb89e9a8ca77e24ba0f9fa0f8c4cfc832a780af36c684012055d",
-   "size": 12439
+  "app.4b1a6cf7.js.map": {
+   "sha512": "a6a6947138e4a6331d27a2a1f8086cf57449cd253e52ea244eb2ee774a9e3b7c",
+   "size": 12520
   },
   "dbschema.json": {
    "sha512": "b858d097f8588b4239d8af05b713696f103d25eeb51424d2a55e050457a7f0a4",
    "size": 1180
   },
   "index.html": {
-   "sha512": "8d011b0685ab0635797850b585fb4cdc7ab22a2c4e65f8cf597de9690257cba6",
+   "sha512": "667094ee1cdb02c5d7a3800b29dbbf835b449cdd102bc46c6038c796f9f3a76c",
    "size": 199
   },
   "logo.png": {
@@ -27,15 +27,15 @@
    "size": 10055
   },
   "styles.95144784.css": {
-   "sha512": "259e4f56c90ebcef9cbf8b0972cd27075559f0f10693ac0e807d62ffbaf7980c",
-   "size": 6908
+   "sha512": "793490a408cc14311de37a8df2616a00dc4e91a51a4faca6a627c07687d00d52",
+   "size": 11159
   },
   "styles.95144784.css.map": {
    "sha512": "3b19ed0f49b9f9fb314f03c67a07891df19b6de9311c701333f4121c6cd71e62",
    "size": 277615
   }
  },
- "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/.*|.*\\.config\\.js)",
+ "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/.*|.*\\.config\\.js|build_docs\\.py|elm-application\\.json)",
  "includes": {
   "data/users/content.json": {
    "signers": [],
@@ -43,10 +43,10 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1576252941,
+ "modified": 1577374723,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HCT+BD/MvQIpk1+kw/wc7BEvficqVnKbTQxCEdCBZsV0Vs81BIph14xvcNcOHNyUy3uqoMBvEFuvEHuRjBTVnQ4="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "GwM/T2uUb+0JmBSYHHit+Hauhe96Tk1fWhTkNm11XCUOHREyCkHKtF/1bxK+f02NNp11h52STPMNLmVkNovRJCw="},
  "signs_required": 1,
  "title": "Elm-ZeroNet Demo",
  "zeronet_version": "0.7.1"

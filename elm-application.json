@@ -1,0 +1,12 @@
+{
+    "name": "gomzik/elm-zeronet",
+    "summary": "A toolkit to build zites with elm",
+    "version": "0.1.0",
+    "exposed-modules": [
+        "ZeroNet",
+        "ZeroNet.Auth",
+        "ZeroNet.Command",
+        "ZeroNet.Database",
+        "ZeroNet.Files"
+    ]
+}

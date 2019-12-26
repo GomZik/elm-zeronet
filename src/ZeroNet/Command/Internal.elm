@@ -4,6 +4,9 @@ import Json.Encode exposing ( Value )
 
 type ZFrameError = E String
 
+errorToString : ZFrameError -> String
+errorToString (E s) = s
+
 type ZFrameResponse msg
   = NoResponse
   | Response ( Result ZFrameError Value -> msg )

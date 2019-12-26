@@ -1,4 +1,4 @@
-module ZeroNet.Site exposing ( SiteInfo, decoder, getSiteInfo, publish, Error )
+module ZeroNet.Site exposing ( SiteInfo, Settings, decoder, getSiteInfo, publish, Error )
 
 import ZeroNet.Command.Internal as CmdI
 
@@ -11,17 +11,27 @@ type Error
   | JsonError JD.Error
   | PublishError String
 
+type alias Settings =
+  { own : Bool
+  }
 
 type alias SiteInfo =
   { certUserId : Maybe String
   , authAddress : Maybe String
+  , settings: Settings
   }
+
+settingsDecoder : JD.Decoder Settings
+settingsDecoder =
+  JD.map Settings
+    ( JD.field "own" JD.bool )
 
 decoder : JD.Decoder SiteInfo
 decoder =
-  JD.map2 SiteInfo
+  JD.map3 SiteInfo
     ( JD.field "cert_user_id" <| JD.maybe JD.string )
     ( JD.field "auth_address" <| JD.maybe JD.string )
+    ( JD.field "settings" <| settingsDecoder )
 
 
 getSiteInfo : ( Result Error SiteInfo -> msg ) -> CmdI.Command msg

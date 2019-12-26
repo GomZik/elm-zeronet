@@ -1,4 +1,14 @@
-port module ZeroNet exposing ( Program, program )
+port module ZeroNet exposing ( Program, program, ProgramConfig )
+
+{-| elm-zeronet is a toolkit to build zeronet zites with elm
+
+This module adds own Program as TEA does but adds compatibility layer for ZeroFrame API
+
+# Program
+
+@docs Program, ProgramConfig, program
+
+-}
 
 import Html exposing ( Html )
 import Browser exposing ( Document )
@@ -106,9 +116,13 @@ type alias Flags flags =
   { appFlags : flags
   }
 
+{-| Program type mimic to Platform.Program but adds an funtcionality to work with ZeroFrame
+-}
 type alias Program flags model msg =
   Platform.Program ( Flags flags ) ( Model flags model msg ) ( Msg msg )
 
+{-| ProgramConfig parameters that should be passed to `program` function
+-}
 type alias ProgramConfig flags model msg =
   { init : flags -> Key -> Url -> ( model, Command msg )
   , update : msg -> model -> ( model, Command msg )
@@ -279,6 +293,65 @@ wrapSubscriptions fn model =
           ]
 
 
+{-| program creates an ZeroNet program
+
+    module Main exposing ( main )
+
+    import ZeroNet
+    import ZeroNet.Navigation as Nav
+    import ZeroNet.Command as Command exposing ( Command )
+    import ZeroNet.Subscription as Subscription exposing ( Subscription )
+
+    import Html exposing ( .. )
+    import Html.Attributes exposing ( .. )
+    import Html.Events exposing ( .. )
+
+    import Url exposing ( Url )
+
+    type alias Model = Int
+
+    type Msg
+      = Inc
+      | Dec
+      | UrlRequest Nav.Request
+      | UrlChange Url
+
+    main : ZeroNet.Program Flags Model Msg
+    main =
+      ZeroNet.program
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        , onUrlRequest = UrlRequest
+        , onUrlChange = UrlChange
+        }
+
+    init : () -> Nav.Key -> Url -> ( Model, Command Msg )
+    init _ _ _ =
+      ( 0, Command.none )
+
+    update : Msg -> Model -> ( Model, Command Msg )
+    update =
+      case msg of
+        Inc ->
+          ( model + 1, Command.none )
+        Dec ->
+          ( model - 1, Command.none )
+        _ -> ( model, Command.none )
+
+    view : Model -> Html Msg
+    view model =
+      div []
+        [ button [ type_ "button", onClick Dec ] [ "-" ]
+        , span [] [ text <| String.fromInt model ]
+        , button [ type_ "button", onClick Inc ] [ "+" ]
+        ]
+
+    subscriptions : Model -> Subscription Msg
+    subscriptions =
+      Sub.none
+-}
 program : ProgramConfig flags model msg -> Program flags model msg
 program cfg =
   Browser.application

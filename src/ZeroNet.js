@@ -30,7 +30,8 @@ export default {
 
     app.ports.zfSend.subscribe(data => {
       console.log("zfSend:", data)
-      api.cmdp(data.command, data.args).then(resp => {
+
+      const handler = resp => {
         console.log(resp)
         if ( data && data.reqId ) {
           app.ports.zfResponse.send({
@@ -38,7 +39,9 @@ export default {
             response: resp,
           })
         }
-      })
+      }
+
+      api.cmdp(data.command, data.args).then(handler, handler)
       switch (data.command) {
         case 'wrapperPushState':
           // Send to elm urlchange event

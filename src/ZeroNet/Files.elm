@@ -1,5 +1,26 @@
 module ZeroNet.Files exposing
-  ( Error, put, get, Expect, expectText, expectJson, Content(..), onFileWrite )
+  ( Error, put, get, Expect, expectText, expectJson, Content(..), onFileWrite
+  , GetParams
+  )
+
+{-| ZeroNet.Files allows to work with ZeroNet files trough ZeroFrame API
+
+# Types
+
+@docs Error
+
+# Reading files
+
+@docs get, GetParams, Expect, expectText, expectJson
+
+# Writing files
+
+@docs put, Content
+
+# Subscriptions
+
+@docs onFileWrite
+-}
 
 import ZeroNet.Command.Internal as CmdI
 import ZeroNet.Subscription.Internal as SubI
@@ -9,11 +30,15 @@ import Json.Decode as JD
 
 import Base64
 
+{-| Error represents that something happend during command execution
+-}
 type Error
   = JsonError JD.Error
   | ZFrameError CmdI.ZFrameError
   | PutError String
 
+{-| You can choose what to put.
+-}
 type Content
   = Text String
   | Json Value
@@ -25,6 +50,14 @@ putResponseDecoder =
   , JD.succeed <| Ok ()
   ]
 
+{-| Puts file. You should provide an inner path and content to put
+
+    put FileWriteResult ( "data/user/" ++ authCert ++ "/data.json" ) <|
+      Json <| JE.object
+        [ ( "next_message_id", model.nextMessageId )
+        , ( "messages", JE.list messageDecoder )
+        ]
+-}
 put : ( Result Error () -> msg ) -> String -> Content -> CmdI.Command msg
 put cb name data =
   CmdI.ZFrame "fileWrite"
@@ -43,13 +76,31 @@ put cb name data =
           Err err -> cb <| Err <| JsonError err
     ) )
 
+{-| Expect represents what we should expect on file read
+-}
 type Expect msg
   = TextResponse ( Result Error String -> msg )
 
+{-| Returns Expect type that tells Elm-ZeroNet runtime, that we wait
+for text response
+
+-}
 expectText : ( Result Error String -> msg ) -> Expect msg
 expectText cb =
   TextResponse cb
 
+{-| Returns Expect type that tells Elm-ZeroNet runtime that we wait for a decoded object
+
+    type Msg = GetFileResult ( Result File.Error Message )
+
+    type alias Message =
+      {}
+
+    messageDecoder : JD.Decoder Message
+    messageDecoder = Debug.todo "messageDecoder"
+
+    expectJson messageDecoder GetFileResult
+-}
 expectJson : ( JD.Decoder x ) -> ( Result Error x -> msg ) -> Expect msg
 expectJson decoder cb =
   expectText (\res ->
@@ -60,6 +111,8 @@ expectJson decoder cb =
   )
 
 
+{-| GetParams is just alias for `get` params
+-}
 type alias GetParams msg =
   { path : String
   , required : Bool
@@ -74,6 +127,15 @@ processGetResponse ( TextResponse cb ) result =
       |> Result.mapError JsonError
     Err err -> Err <| ZFrameError err
 
+{-| get returns command that reads file and return file content
+
+    get
+      { path = "data/users/" ++ authCert ++ "/data.json"
+      , requred = True
+      , expect = expectJson messageDecoder GetFileResult
+      , timeout = Nothing
+      }
+-}
 get : GetParams msg -> CmdI.Command msg
 get prms =
   CmdI.ZFrame "fileGet"
@@ -89,5 +151,7 @@ get prms =
     ( CmdI.Response <| processGetResponse prms.expect )
 
 
+{-| Fires when ZeroNet notifies site, that file was updated
+-}
 onFileWrite : msg -> SubI.Subscription msg
 onFileWrite = SubI.OnFileWrite

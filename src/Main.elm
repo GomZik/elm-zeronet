@@ -16,29 +16,54 @@ import Html.Attributes exposing ( .. )
 import Html.Events exposing ( .. )
 
 import Url exposing ( Url )
-import Url.Parser as P
+import Url.Parser as P exposing ( (</>) )
 
 import Json.Encode as JE
 import Json.Decode as JD
+
+import App.Data.Article as Article exposing ( Article )
 
 import Time
 
 import Task
 
-type Page
+type Route
   = Index
   | Docs
+  | EditDocs Int
   | Api
   | Guides
 
 type alias Model =
   { navKey : Nav.Key
-  , page : Page
+  , route : Route
+  , docs : WebData ( List Article )
+  , siteInfo : WebData SiteInfo
   }
+
+type DocsPage
+  = DocsIndexView
+  | DocView Article
+  | EditDocView Article
+
+type Page
+  = IndexPage
+  | ApiIndexPage
+  | GuidesIndexPage
+  | DocsPage DocsPage
+  | NotFound
+
+type WebData a
+  = Loading
+  | Error
+  | Loaded a
 
 type Msg
   = UrlRequest Nav.Request
   | UrlChange Url
+  | ArticleQueryResponse ( Result Db.Error ( List Article ) )
+  | SiteInfoResponse ( Result Site.Error SiteInfo )
+  -- | AddArticleClicked
 
 main : ZeroNet.Program () Model Msg
 main =
@@ -52,27 +77,38 @@ main =
     }
 
 
-urlParser : P.Parser ( Page -> a ) a
+urlParser : P.Parser ( Route -> a ) a
 urlParser =
   P.oneOf
     [ P.map Index P.top
     , P.map Docs ( P.s "Docs" )
     , P.map Api ( P.s "Api" )
     , P.map Guides ( P.s "Guides" )
+    , P.map EditDocs ( P.s "Docs" </> P.int )
     ]
 
-parsePage : Url -> Page
-parsePage u =
+parseRoute : Url -> Route
+parseRoute u =
   P.parse urlParser u
     |> Maybe.withDefault Index
+
 
 init : () -> Nav.Key -> Url -> ( Model, Command Msg )
 init _ key url =
   (
     { navKey = key
-    , page = parsePage url
+    , route = parseRoute url
+    , docs = Loading
+    , siteInfo = Loading
     }
-  , Command.none
+  , Command.batch
+    [ Db.query
+      { query = "SELECT * FROM docs ORDER BY position"
+      , params = JE.null
+      , expect = Db.expectJson ( JD.list Article.decoder ) ArticleQueryResponse
+      }
+    , Site.getSiteInfo SiteInfoResponse
+    ]
   )
 
 update : Msg -> Model -> ( Model, Command Msg )
@@ -85,22 +121,30 @@ update msg model =
         Nav.Zite u -> ( model, Nav.load u )
         Nav.External u -> ( model, Nav.load u )
     UrlChange u ->
-      ( { model | page = parsePage u }, Command.none )
+      ( { model | route = parseRoute u }, Command.none )
+    ArticleQueryResponse res ->
+      case res of
+        Err err -> ( { model | docs = Error }, Notification.send Notification.Error ( "Failed to load articles: " ++ Db.errorToString err ) Nothing )
+        Ok articles -> ( { model | docs = Loaded articles }, Command.none )
+    SiteInfoResponse res ->
+      case res of
+        Err err -> ( { model | siteInfo = Error }, Notification.send Notification.Error "Failed to get site info" Nothing )
+        Ok si -> ( { model | siteInfo = Loaded si }, Command.none )
 
 viewNav : Model -> Html Msg
 viewNav model =
   nav [ class "navbar" ]
     [ div [ class "container" ]
       [ div [ class "navbar-brand" ]
-        [ a [ classList [ ( "navbar-item", True ), ( "is-active", model.page == Index ) ], href "?" ]
+        [ a [ classList [ ( "navbar-item", True ), ( "is-active", model.route == Index ) ], href "?" ]
           [ img [ src "./logo.png", alt "Elm-ZeroNet" ] []
           ]
         ]
       , div [ class "navbar-menu" ]
         [ div [ class "navbar-end" ]
-          [ a [ classList [ ( "navbar-item", True ), ( "is-active", model.page == Docs ) ], href "?Docs" ] [ text "Documentation" ]
-          , a [ classList [ ( "navbar-item", True ), ( "is-active", model.page == Api ) ], href "?Api" ] [ text "API Reference" ]
-          , a [ classList [ ( "navbar-item", True ), ( "is-active", model.page == Guides ) ], href "?Guides" ] [ text "Guides" ]
+          [ a [ classList [ ( "navbar-item", True ), ( "is-active", model.route == Docs ) ], href "?Docs" ] [ text "Documentation" ]
+          , a [ classList [ ( "navbar-item", True ), ( "is-active", model.route == Api ) ], href "?Api" ] [ text "API Reference" ]
+          , a [ classList [ ( "navbar-item", True ), ( "is-active", model.route == Guides ) ], href "?Guides" ] [ text "Guides" ]
           ]
         ]
       ]
@@ -121,37 +165,54 @@ view : Model -> Html Msg
 view model =
   div []
     [ viewNav model
-    , case model.page of
+    , case model.route of
         Index -> viewHero
-        Docs -> viewDocs
+        Docs -> viewDocs model
+        EditDocs _ -> viewDocs model
         Api -> viewApi
         Guides -> viewGuides
     ]
 
-viewDocs : Html Msg
-viewDocs =
+viewDocsMenu : Model -> List ( Html Msg )
+viewDocsMenu model =
+  case model.docs of
+    Loading -> [ text "Loading..." ]
+    Error -> [ text "Error, reload?" ]
+    Loaded articles -> case articles of
+      [] -> [ text "No articles found..." ]
+      _ -> articles
+        |> List.map (\x ->
+          a [ href "#" ] [ text <| Article.title x ]
+        )
+
+viewAddDocsButton : WebData SiteInfo -> Html Msg
+viewAddDocsButton wdSi =
+  let
+    showButton =
+      case wdSi of
+        Loaded si -> si.settings.own
+        _ -> False
+  in
+    if showButton then button [ type_ "button", class "button"  ] [ text "Add article" ]
+    else text ""
+
+viewDocs : Model -> Html Msg
+viewDocs model =
   section [ class "section" ]
     [ div [ class "container" ]
       [ div [ class "columns" ]
-        [ div [class "column is-one-third"]
-          [ text "TOC"
+        [ div [ class "column has-text-centered" ]
+          [ viewAddDocsButton model.siteInfo
           ]
+        ]
+      , div [ class "columns" ]
+        [ div [class "column is-one-third"] <| viewDocsMenu model
         , div [ class "column" ]
           [ text "Content"
           ]
         ]
       ]
     ]
-
-type Article = Article String String
-
-docs : List Article
-docs =
-  [ Article "Getting Started"
-    <| "# Hello, world!\n" ++
-    "\n" ++
-    "Test"
-  ]
 
 viewApi = text ""
 
