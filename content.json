@@ -6,13 +6,13 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.7dfc7e7c.js": {
-   "sha512": "e978c73a42a461ae246a4a39238843edc4fc30225b59077db4e0d46d54f251cb",
-   "size": 72119
+  "app.24ce7162.js": {
+   "sha512": "b880210c7477acdd0d7ef62c2e37034228100e1195f05768670008c3ffdefcb4",
+   "size": 72260
   },
-  "app.7dfc7e7c.js.map": {
-   "sha512": "651040e605ae5730fc689984b7d8111264dac2683ff79235e4c4939602beb756",
-   "size": 12520
+  "app.24ce7162.js.map": {
+   "sha512": "6233ac98982f2d0765a79cc690a718e9a263522cede04fd24d21336582731916",
+   "size": 12894
   },
   "data/docs.json": {
    "sha512": "ec7b4eccc769c865901cc166ca9aa7faa01b00d5d5b159260d5ddd69d2fc2833",
@@ -23,7 +23,7 @@
    "size": 1180
   },
   "index.html": {
-   "sha512": "d5656303294e8313891f339547bb3bcaad7d67614c038be388411fc3930d5aae",
+   "sha512": "99b54875a513e5d986893134e1f4034a34715a7b53d413f4ca85d72f5364ade8",
    "size": 199
   },
   "logo.png": {
@@ -47,10 +47,10 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1578050887,
+ "modified": 1578058528,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "Gwb3bhho3iHeCzw/9ivLBTIGP+tIKpBZast14HcuG1tUGoIqkzAc8xe0u+gSo8dUHMakdInvCFmZt8gQM1iPjak="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "G3vp6+pb74avVYpUgnGNjSvtItbOK8stSkFFq5g/CvUeNUeGi5+QJOnGSw+onOoSJRwym04ETwDW9OF6zzTZ2E0="},
  "signs_required": 1,
  "title": "Elm-ZeroNet Demo",
  "zeronet_version": "0.7.1"

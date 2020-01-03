@@ -11,6 +11,7 @@ class API extends ZeroFrame {
   }
 
   onRequest(cmd, message) {
+    console.log(cmd, message)
     this.eventTarget.dispatchEvent(new CustomEvent(cmd, {detail: message}))
   }
 
@@ -61,6 +62,11 @@ export default {
           case 'file_done':
             app.ports.onFileWrite.send(null)
         }
+    })
+
+    api.subscribe('wrapperPopState', ev => {
+      let u = new URL(ev.detail.params.href)
+      app.ports.urlChanged.send(u.search.substr(1))
     })
   }
 }
