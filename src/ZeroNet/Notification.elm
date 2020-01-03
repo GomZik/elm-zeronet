@@ -1,9 +1,22 @@
 module ZeroNet.Notification exposing (Severity(..), send)
 
+{-| ZeroNet.Notification allows to send notifications to user trough ZeroFrame API
+
+# Types
+
+@docs Severity
+
+# Commands
+
+@docs send
+-}
+
 import ZeroNet.Command.Internal as CmdI
 
 import Json.Encode as JE
 
+{-| Severity represent an type of notification
+-}
 type Severity
   = Info
   | Done
@@ -16,6 +29,10 @@ encodeSeverity sev =
     Done -> "done"
     Error -> "error"
 
+{-| Creates command to ZeroFrame API to send notification.
+
+You can pass notification timeout as third parameter. 3000 millis by default
+-}
 send : Severity -> String -> Maybe Int -> CmdI.Command msg
 send sev msg timeout =
   CmdI.ZFrame "wrapperNotification"

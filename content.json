@@ -6,24 +6,24 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.4b1a6cf7.js": {
-   "sha512": "d25aca45830e1c135dca96ec6b62517dd7b83bc0f07b0482721a32ff005d7d00",
-   "size": 42887
+  "app.7dfc7e7c.js": {
+   "sha512": "e978c73a42a461ae246a4a39238843edc4fc30225b59077db4e0d46d54f251cb",
+   "size": 72119
   },
-  "app.4b1a6cf7.js.map": {
-   "sha512": "a6a6947138e4a6331d27a2a1f8086cf57449cd253e52ea244eb2ee774a9e3b7c",
+  "app.7dfc7e7c.js.map": {
+   "sha512": "651040e605ae5730fc689984b7d8111264dac2683ff79235e4c4939602beb756",
    "size": 12520
   },
   "data/docs.json": {
-   "sha512": "17057ebaa935632a44254954b8fa80579d7bdb5ed571bea722cd622af6228cde",
-   "size": 9566
+   "sha512": "ec7b4eccc769c865901cc166ca9aa7faa01b00d5d5b159260d5ddd69d2fc2833",
+   "size": 13784
   },
   "dbschema.json": {
    "sha512": "b858d097f8588b4239d8af05b713696f103d25eeb51424d2a55e050457a7f0a4",
    "size": 1180
   },
   "index.html": {
-   "sha512": "667094ee1cdb02c5d7a3800b29dbbf835b449cdd102bc46c6038c796f9f3a76c",
+   "sha512": "d5656303294e8313891f339547bb3bcaad7d67614c038be388411fc3930d5aae",
    "size": 199
   },
   "logo.png": {
@@ -31,15 +31,15 @@
    "size": 10055
   },
   "styles.95144784.css": {
-   "sha512": "793490a408cc14311de37a8df2616a00dc4e91a51a4faca6a627c07687d00d52",
-   "size": 11159
+   "sha512": "0392702b6af3780f16bb5d75b11bb3df0cfe42bed36f089be509f0e9815e36b6",
+   "size": 251063
   },
   "styles.95144784.css.map": {
    "sha512": "3b19ed0f49b9f9fb314f03c67a07891df19b6de9311c701333f4121c6cd71e62",
    "size": 277615
   }
  },
- "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/users/.*|data/test\\.db.*|.*\\.config\\.js|build_docs\\.py|elm-application\\.json)",
+ "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/users/.*|data/test\\.db.*|.*\\.config\\.js|build_docs\\.py|elm-application\\.json|\\.vscode/.*)",
  "includes": {
   "data/users/content.json": {
    "signers": [],
@@ -47,10 +47,10 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1577374805,
+ "modified": 1578050887,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HInqtca4CcAYq654W112847pQa2atjIRy1am6bRwBNfeLaSz1AGW7a52b0fMJ93pxht/cyea+B5Crcre0X7YMDQ="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "Gwb3bhho3iHeCzw/9ivLBTIGP+tIKpBZast14HcuG1tUGoIqkzAc8xe0u+gSo8dUHMakdInvCFmZt8gQM1iPjak="},
  "signs_required": 1,
  "title": "Elm-ZeroNet Demo",
  "zeronet_version": "0.7.1"

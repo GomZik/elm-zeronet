@@ -1,20 +1,41 @@
 module ZeroNet.Site exposing ( SiteInfo, Settings, decoder, getSiteInfo, publish, Error )
 
+{-| ZeroNet.Site represents siteInfo ZeroFrame API methods
+
+# Types
+
+@docs Error, SiteInfo, Settings
+
+# Commands
+
+@docs getSiteInfo, publish
+
+# TODO
+
+@docs decoder
+-}
+
 import ZeroNet.Command.Internal as CmdI
 
 import Json.Encode as JE
 import Json.Decode as JD
 
 
+{-| Represents an error while requesting SiteInfo
+-}
 type Error
   = ZFrameError CmdI.ZFrameError
   | JsonError JD.Error
   | PublishError String
 
+{-| SiteInfo has Settings part
+-}
 type alias Settings =
   { own : Bool
   }
 
+{-| SiteInfo
+-}
 type alias SiteInfo =
   { certUserId : Maybe String
   , authAddress : Maybe String
@@ -26,6 +47,8 @@ settingsDecoder =
   JD.map Settings
     ( JD.field "own" JD.bool )
 
+{-| TODO: Make internal
+-}
 decoder : JD.Decoder SiteInfo
 decoder =
   JD.map3 SiteInfo
@@ -34,6 +57,8 @@ decoder =
     ( JD.field "settings" <| settingsDecoder )
 
 
+{-| Returns command to request siteInfo
+-}
 getSiteInfo : ( Result Error SiteInfo -> msg ) -> CmdI.Command msg
 getSiteInfo cb =
   CmdI.ZFrame "siteInfo" JE.null <| CmdI.Response <| ( \res ->
@@ -52,6 +77,8 @@ publishResponseDecoder =
     , JD.succeed <| Ok ()
     ]
 
+{-| Returns command to publish and subscribe spefified file
+-}
 publish : ( Result Error () -> msg ) -> String -> CmdI.Command msg
 publish cb path =
   CmdI.ZFrame "sitePublish"

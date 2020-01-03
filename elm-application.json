@@ -7,6 +7,9 @@
         "ZeroNet.Auth",
         "ZeroNet.Command",
         "ZeroNet.Database",
-        "ZeroNet.Files"
+        "ZeroNet.Files",
+        "ZeroNet.Navigation",
+        "ZeroNet.Notification",
+        "ZeroNet.Site"
     ]
 }
