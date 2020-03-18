@@ -6,12 +6,12 @@
  "cloned_from": "1HeLLo4uzjaLetFx6NH3PMwFP3qbRbTf3D",
  "description": "",
  "files": {
-  "app.24ce7162.js": {
-   "sha512": "b880210c7477acdd0d7ef62c2e37034228100e1195f05768670008c3ffdefcb4",
-   "size": 72260
+  "app.9c850acc.js": {
+   "sha512": "79c885b1f7157b8e3fc372bb2e1f27f6ac358d5b74cadf3344d84e6370a1e25b",
+   "size": 72264
   },
-  "app.24ce7162.js.map": {
-   "sha512": "6233ac98982f2d0765a79cc690a718e9a263522cede04fd24d21336582731916",
+  "app.9c850acc.js.map": {
+   "sha512": "6f161e0337b045f854f8cdb74d76a5a766002e2214b01ea32920b301bf2f7556",
    "size": 12894
   },
   "data/docs.json": {
@@ -23,7 +23,7 @@
    "size": 1180
   },
   "index.html": {
-   "sha512": "99b54875a513e5d986893134e1f4034a34715a7b53d413f4ca85d72f5364ade8",
+   "sha512": "e8763dcf05a4adb6c5b7994b00e021d567e2b8338b9eda7e3a0ad2a08406a47a",
    "size": 199
   },
   "logo.png": {
@@ -39,7 +39,7 @@
    "size": 277615
   }
  },
- "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/users/.*|data/test\\.db.*|.*\\.config\\.js|build_docs\\.py|elm-application\\.json|\\.vscode/.*)",
+ "ignore": "(node_modules|src|\\.cache|elm-stuff|elm\\.json|package.*\\.json|\\.gitignore|\\.git|README.md|LICENSE(\\.md)?|data/users/.*|data/test\\.db.*|.*\\.config\\.js|build_docs\\.py|elm-application\\.json|\\.vscode/.*|examples)",
  "includes": {
   "data/users/content.json": {
    "signers": [],
@@ -47,10 +47,10 @@
   }
  },
  "inner_path": "content.json",
- "modified": 1578058528,
+ "modified": 1584555347,
  "postmessage_nonce_security": true,
  "signers_sign": "HJ4YIgx65GQuWYz5MQ9ATtSZCEnbqoxgyLBst/o6doOgZfyfJKf4Z2OJBh7ze3x37jemf6HDH+uXyEQh+DZFY0Y=",
- "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "G3vp6+pb74avVYpUgnGNjSvtItbOK8stSkFFq5g/CvUeNUeGi5+QJOnGSw+onOoSJRwym04ETwDW9OF6zzTZ2E0="},
+ "signs": {"1ANAneTCtamh2dgZrJWNPNMTEX8iXKawPg": "HFVD40aAvbJPF5ICJ/n64952voVP2UWK5c1ChRSQCwm9W0zzBDYlb2dEb5uRljUQkkN/IY6qH6vDx/t32eDj9LE="},
  "signs_required": 1,
  "title": "Elm-ZeroNet Demo",
  "zeronet_version": "0.7.1"

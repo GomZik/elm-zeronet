@@ -17,7 +17,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -f index.html app.*.js* styles.*.css* logo.png data/docs.json && python3 build_docs.py && parcel build -d . --public-url=./ ./src/index.html",
+    "build": "rm -f index.html app.*.js* styles.*.css* logo.png data/docs.json && python3 build_docs.py && cp -r examples/* ./src/ && parcel build -d . --public-url=./ ./src/index.html && rm -rf ./src/Main.elm ./src/App",
     "dev": "NODE_ENV=development parcel build --public-url=./ -d . --no-minify ./src/index.html"
   },
   "keywords": [],
